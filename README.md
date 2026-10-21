@@ -38,9 +38,9 @@ npm test
 
 ```text
 src/components/TaskForm.tsx    formulário de nova tarefa
-src/components/TaskItem.tsx    uma tarefa, com concluir e excluir
+src/components/TaskItem.tsx    uma tarefa, com concluir, editar e excluir
 src/components/TaskList.tsx    lista de tarefas
-src/hooks/useTasks.ts          criação, conclusão, exclusão e localStorage
+src/hooks/useTasks.ts          criação, conclusão, edição, exclusão e localStorage
 src/types/task.ts              modelo da tarefa
 src/App.tsx                    composição da tela
 src/main.tsx                   entrada da aplicação
@@ -56,6 +56,7 @@ Uma tarefa tem `id`, `title`, `completed` e `createdAt`.
 - Criar uma tarefa
 - Listar tarefas
 - Marcar e desmarcar uma tarefa como concluída
+- Editar uma tarefa
 - Excluir uma tarefa
 - Salvar tarefas no `localStorage`
 - Carregar as tarefas salvas ao iniciar
@@ -68,7 +69,6 @@ Estas partes ficam para os estudantes implementarem:
 
 - Filtros
 - Contadores por status
-- Edição de tarefa
 - Modo escuro
 - Botão para limpar tarefas concluídas
 - Ordenação

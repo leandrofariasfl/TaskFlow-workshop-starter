@@ -4,10 +4,11 @@ import { TaskItem } from "./TaskItem";
 type TaskListProps = {
   tasks: Task[];
   onToggleTask: (id: string) => void;
+  onEditTask: (id: string, title: string) => void;
   onDeleteTask: (id: string) => void;
 };
 
-export function TaskList({ tasks, onToggleTask, onDeleteTask }: TaskListProps) {
+export function TaskList({ tasks, onToggleTask, onEditTask, onDeleteTask }: TaskListProps) {
   if (tasks.length === 0) {
     return <p className="task-list__empty">Nenhuma tarefa por aqui.</p>;
   }
@@ -19,6 +20,7 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask }: TaskListProps) {
           key={task.id}
           task={task}
           onToggleTask={onToggleTask}
+          onEditTask={onEditTask}
           onDeleteTask={onDeleteTask}
         />
       ))}

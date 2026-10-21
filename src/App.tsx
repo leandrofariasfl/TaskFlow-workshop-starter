@@ -3,7 +3,7 @@ import { TaskList } from "./components/TaskList";
 import { useTasks } from "./hooks/useTasks";
 
 export function App() {
-  const { tasks, addTask, toggleTask, deleteTask } = useTasks();
+  const { tasks, addTask, toggleTask, editTask, deleteTask } = useTasks();
 
   return (
     <div className="app">
@@ -15,7 +15,12 @@ export function App() {
         <TaskForm onAddTask={addTask} />
         <section className="task-section" aria-labelledby="task-list-heading">
           <h2 id="task-list-heading">Tarefas</h2>
-          <TaskList tasks={tasks} onToggleTask={toggleTask} onDeleteTask={deleteTask} />
+          <TaskList
+            tasks={tasks}
+            onToggleTask={toggleTask}
+            onEditTask={editTask}
+            onDeleteTask={deleteTask}
+          />
         </section>
       </main>
     </div>

@@ -8,6 +8,7 @@
   --accent: #065f46;
   --accent-contrast: #ffffff;
   --danger: #9b1c1c;
+  --edit: #b45309;
   --focus: #1d4ed8;
   --completed: #3e4c59;
 }
@@ -144,7 +145,7 @@ input:focus-visible {
   gap: 0.7rem;
 }
 
-.task-item input {
+.task-item input[type="checkbox"] {
   width: 1.15rem;
   height: 1.15rem;
   margin-top: 0.2rem;
@@ -156,12 +157,51 @@ input:focus-visible {
   text-decoration: line-through;
 }
 
-.task-item button {
+.task-item__edit-form {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.task-item__edit-input {
+  flex: 1;
+  min-width: 0;
   min-height: 2.75rem;
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--danger);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   background: var(--surface);
+  color: var(--text);
+}
+
+.task-item__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.task-item__actions button {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.task-item__edit {
+  border: 1px solid var(--edit);
+  color: var(--edit);
+}
+
+.task-item__cancel {
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.task-item__delete {
+  border: 1px solid var(--danger);
   color: var(--danger);
 }
 
@@ -171,12 +211,14 @@ input:focus-visible {
   }
 
   .task-form__row,
-  .task-item {
+  .task-item,
+  .task-item__edit-form {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .task-item button {
+  .task-item__actions,
+  .task-item__actions button {
     align-self: flex-start;
   }
 }

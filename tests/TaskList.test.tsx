@@ -23,7 +23,14 @@ const tasks: Task[] = [
 
 describe("TaskList", () => {
   it("lista as tarefas e marca a concluída", () => {
-    render(<TaskList tasks={tasks} onToggleTask={vi.fn()} onDeleteTask={vi.fn()} />);
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={vi.fn()}
+        onEditTask={vi.fn()}
+        onDeleteTask={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("Ler o README")).toBeInTheDocument();
     expect(screen.getByText("Revisar o hook")).toBeInTheDocument();
@@ -32,7 +39,9 @@ describe("TaskList", () => {
   });
 
   it("informa quando não há tarefas", () => {
-    render(<TaskList tasks={[]} onToggleTask={vi.fn()} onDeleteTask={vi.fn()} />);
+    render(
+      <TaskList tasks={[]} onToggleTask={vi.fn()} onEditTask={vi.fn()} onDeleteTask={vi.fn()} />,
+    );
 
     expect(screen.getByText("Nenhuma tarefa por aqui.")).toBeInTheDocument();
   });
@@ -41,7 +50,14 @@ describe("TaskList", () => {
     const user = userEvent.setup();
     const onToggleTask = vi.fn();
 
-    render(<TaskList tasks={tasks} onToggleTask={onToggleTask} onDeleteTask={vi.fn()} />);
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={onToggleTask}
+        onEditTask={vi.fn()}
+        onDeleteTask={vi.fn()}
+      />,
+    );
 
     await user.click(screen.getByRole("checkbox", { name: "Ler o README" }));
     await user.click(screen.getByRole("checkbox", { name: "Revisar o hook" }));
@@ -54,16 +70,118 @@ describe("TaskList", () => {
     const user = userEvent.setup();
     const onDeleteTask = vi.fn();
 
-    render(<TaskList tasks={tasks} onToggleTask={vi.fn()} onDeleteTask={onDeleteTask} />);
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={vi.fn()}
+        onEditTask={vi.fn()}
+        onDeleteTask={onDeleteTask}
+      />,
+    );
 
     await user.click(screen.getByRole("button", { name: "Excluir tarefa Ler o README" }));
 
     expect(onDeleteTask).toHaveBeenCalledWith("tarefa-1");
   });
+
+  it("salva o título editado sem espaços nas extremidades", async () => {
+    const user = userEvent.setup();
+    const onEditTask = vi.fn();
+
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={vi.fn()}
+        onEditTask={onEditTask}
+        onDeleteTask={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Editar tarefa Ler o README" }));
+    await user.clear(screen.getByLabelText("Título da tarefa Ler o README"));
+    await user.type(screen.getByLabelText("Título da tarefa Ler o README"), "  Ler o código  ");
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    expect(onEditTask).toHaveBeenCalledWith("tarefa-1", "Ler o código");
+  });
+
+  it("não salva um título vazio ou só com espaços", async () => {
+    const user = userEvent.setup();
+    const onEditTask = vi.fn();
+
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={vi.fn()}
+        onEditTask={onEditTask}
+        onDeleteTask={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Editar tarefa Ler o README" }));
+    await user.clear(screen.getByLabelText("Título da tarefa Ler o README"));
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    expect(onEditTask).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Título da tarefa Ler o README")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Título da tarefa Ler o README"), "   ");
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    expect(onEditTask).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Título da tarefa Ler o README")).toBeInTheDocument();
+  });
+
+  it("cancela a edição e restaura o título original", async () => {
+    const user = userEvent.setup();
+    const onEditTask = vi.fn();
+
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={vi.fn()}
+        onEditTask={onEditTask}
+        onDeleteTask={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Editar tarefa Ler o README" }));
+    await user.clear(screen.getByLabelText("Título da tarefa Ler o README"));
+    await user.type(screen.getByLabelText("Título da tarefa Ler o README"), "Outro título");
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(onEditTask).not.toHaveBeenCalled();
+    expect(screen.getByText("Ler o README")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Título da tarefa Ler o README")).not.toBeInTheDocument();
+  });
+
+  it("edita uma tarefa concluída sem desmarcá-la", async () => {
+    const user = userEvent.setup();
+    const onEditTask = vi.fn();
+    const onToggleTask = vi.fn();
+
+    render(
+      <TaskList
+        tasks={tasks}
+        onToggleTask={onToggleTask}
+        onEditTask={onEditTask}
+        onDeleteTask={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Editar tarefa Revisar o hook" }));
+    await user.clear(screen.getByLabelText("Título da tarefa Revisar o hook"));
+    await user.type(screen.getByLabelText("Título da tarefa Revisar o hook"), "Hook revisado");
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    expect(onEditTask).toHaveBeenCalledWith("tarefa-2", "Hook revisado");
+    expect(onToggleTask).not.toHaveBeenCalled();
+    expect(screen.getByRole("checkbox", { name: "Revisar o hook" })).toBeChecked();
+  });
 });
 
 describe("persistência", () => {
-  it("mostra as tarefas iniciais e as recupera depois de criar, concluir e excluir", async () => {
+  it("mostra as tarefas iniciais e as recupera depois de criar, concluir, editar e excluir", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
@@ -73,6 +191,10 @@ describe("persistência", () => {
     await user.type(screen.getByLabelText("Nova tarefa"), "Revisar o hook de tarefas");
     await user.click(screen.getByRole("button", { name: "Adicionar" }));
     await user.click(screen.getByRole("checkbox", { name: "Revisar o hook de tarefas" }));
+    await user.click(screen.getByRole("button", { name: "Editar tarefa Adicionar uma tarefa nova" }));
+    await user.clear(screen.getByLabelText("Título da tarefa Adicionar uma tarefa nova"));
+    await user.type(screen.getByLabelText("Título da tarefa Adicionar uma tarefa nova"), "Editar uma tarefa existente");
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
     await user.click(
       screen.getByRole("button", { name: "Excluir tarefa Explorar o código do TaskFlow" }),
     );
@@ -81,6 +203,7 @@ describe("persistência", () => {
     render(<App />);
 
     expect(screen.queryByText("Explorar o código do TaskFlow")).not.toBeInTheDocument();
+    expect(screen.getByText("Editar uma tarefa existente")).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "Revisar o hook de tarefas" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Marcar uma tarefa como concluída" })).toBeChecked();
   });

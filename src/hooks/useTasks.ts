@@ -28,6 +28,7 @@ type UseTasksResult = {
   tasks: Task[];
   addTask: (title: string) => void;
   toggleTask: (id: string) => void;
+  editTask: (id: string, title: string) => void;
   deleteTask: (id: string) => void;
 };
 
@@ -98,9 +99,23 @@ export function useTasks(): UseTasksResult {
     );
   }
 
+  function editTask(id: string, title: string): void {
+    const trimmedTitle = title.trim();
+
+    if (trimmedTitle === "") {
+      return;
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === id ? { ...task, title: trimmedTitle } : task,
+      ),
+    );
+  }
+
   function deleteTask(id: string): void {
     setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
   }
 
-  return { tasks, addTask, toggleTask, deleteTask };
+  return { tasks, addTask, toggleTask, editTask, deleteTask };
 }
